@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", // Output language level
+    "useDefineForClassFields": true, // Ensure class fields are defined as per ESNext spec
+    "lib": ["DOM", "DOM.Iterable", "ESNext"], // Libraries to include in the compilation
+    "allowJs": false, // Set to true if you need to include JavaScript files
+    "skipLibCheck": true, // Skip type checking of declaration files
+    "esModuleInterop": true, // Enable compatibility with CommonJS modules
+    "allowSyntheticDefaultImports": true, // Allow default imports from modules without default exports
+    "strict": true, // Enable all strict type-checking options
+    "forceConsistentCasingInFileNames": true, // Ensure file names are consistent
+    "module": "ESNext", // Module code generation
+    "moduleResolution": "Node", // Module resolution strategy
+    "resolveJsonModule": true, // Allow importing JSON modules
+    "isolatedModules": true, // Ensure each file can be transpiled independently
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["src"]
+}
