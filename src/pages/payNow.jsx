@@ -3,7 +3,7 @@ import {UserContext} from "../index.jsx";
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe('your-publishable-key-here');
+const stripePromise = loadStripe(import.meta.env.VITE_SECRET_PUBLISHABLE_KEY);
 
 const CheckoutForm = () => {
   const {cart} = useContext(UserContext);
@@ -23,7 +23,7 @@ const CheckoutForm = () => {
 
     const cardElement = elements.getElement(CardElement);
 
-    const response = await fetch('http://localhost:5000/create-payment-intent', {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URI}/pay-now`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
