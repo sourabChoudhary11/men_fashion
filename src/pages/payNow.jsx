@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import {UserContext} from "../index.jsx";
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const stripePromise = loadStripe('your-publishable-key-here');
 
 const CheckoutForm = () => {
+  const {cart} = useContext(UserContext);
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState(null);
@@ -27,8 +29,7 @@ const CheckoutForm = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        amount: 50000, // ₹500 = 50000 paise
-        description: 'Export of men\'s fashion apparel',
+        amount: cart.totalAmount*100,
         customerName,
         customerAddress,
       }),
