@@ -31,8 +31,7 @@ const CheckoutForm = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        amount: 50000, // ₹500 = 50000 paise
-        description: 'Export of men\'s fashion apparel',
+        amount: 50000,
         customerName,
         customerAddress,
         customerCity,
