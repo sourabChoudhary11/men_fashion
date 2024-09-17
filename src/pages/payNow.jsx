@@ -1,12 +1,10 @@
-import React, { useState, useContext } from 'react';
-import {UserContext} from "../index.jsx";
+import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const CheckoutForm = () => {
-  const {cart} = useContext(UserContext);
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState(null);
@@ -16,6 +14,10 @@ const CheckoutForm = () => {
   // State variables for form fields
   const [customerName, setCustomerName] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
+  const [customerCity, setCustomerCity] = useState('');
+  const [customerState, setCustomerState] = useState('');
+  const [customerCountry, setCustomerCountry] = useState('');
+  const [customerPostalCode, setCustomerPostalCode] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,9 +31,14 @@ const CheckoutForm = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        amount: cart.totalAmount*100,
+        amount: 50000, // ₹500 = 50000 paise
+        description: 'Export of men\'s fashion apparel',
         customerName,
         customerAddress,
+        customerCity,
+        customerState,
+        customerCountry,
+        customerPostalCode,
       }),
     });
 
@@ -81,6 +88,58 @@ const CheckoutForm = () => {
         />
       </div>
       <div>
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerCity">
+          City
+        </label>
+        <input
+          id="customerCity"
+          type="text"
+          value={customerCity}
+          onChange={(e) => setCustomerCity(e.target.value)}
+          required
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
+        />
+      </div>
+      <div>
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerState">
+          State
+        </label>
+        <input
+          id="customerState"
+          type="text"
+          value={customerState}
+          onChange={(e) => setCustomerState(e.target.value)}
+          required
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
+        />
+      </div>
+      <div>
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerCountry">
+          Country
+        </label>
+        <input
+          id="customerCountry"
+          type="text"
+          value={customerCountry}
+          onChange={(e) => setCustomerCountry(e.target.value)}
+          required
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
+        />
+      </div>
+      <div>
+        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerPostalCode">
+          Postal Code
+        </label>
+        <input
+          id="customerPostalCode"
+          type="text"
+          value={customerPostalCode}
+          onChange={(e) => setCustomerPostalCode(e.target.value)}
+          required
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
+        />
+      </div>
+      <div>
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Card Details
         </label>
@@ -99,10 +158,10 @@ const CheckoutForm = () => {
   );
 };
 
-const PaymentForm = () => (
+const PayNow = () => (
   <Elements stripe={stripePromise}>
     <CheckoutForm />
   </Elements>
 );
 
-export default PaymentForm;
+export default PayNow;
