@@ -11,15 +11,15 @@ const CheckoutForm = () => {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // State variables for form fields
+  const [customerName, setCustomerName] = useState('');
+  const [customerAddress, setCustomerAddress] = useState('');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     const cardElement = elements.getElement(CardElement);
-
-    // Gather customer information
-    const customerName = e.target.customerName.value;
-    const customerAddress = e.target.customerAddress.value;
 
     const response = await fetch('http://localhost:5000/create-payment-intent', {
       method: 'POST',
@@ -59,8 +59,9 @@ const CheckoutForm = () => {
         </label>
         <input
           id="customerName"
-          name="customerName"
           type="text"
+          value={customerName}
+          onChange={(e) => setCustomerName(e.target.value)}
           required
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
         />
@@ -71,8 +72,9 @@ const CheckoutForm = () => {
         </label>
         <input
           id="customerAddress"
-          name="customerAddress"
           type="text"
+          value={customerAddress}
+          onChange={(e) => setCustomerAddress(e.target.value)}
           required
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
         />
