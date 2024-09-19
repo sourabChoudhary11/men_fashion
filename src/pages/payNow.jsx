@@ -4,7 +4,7 @@ import {UserContext} from "../index.jsx";
 
 const Payment = () => {
 
-  const {cart} = useContext(UserContext);
+  const {cart,user} = useContext(UserContext);
   
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -19,11 +19,11 @@ const Payment = () => {
   const handlePayment = async () => {
     const res = await loadRazorpayScript();
     if (!res) {
-      alert('Razorpay SDK failed to load. Are you online?');
+      toast('Razorpay SDK failed to load. Are you online?');
       return;
     }
 
-    const result = await fetch.(`${import.meta.env.VITE_BACKEND_URI}/payment/create-order`, {
+    const result = await fetch(`${import.meta.env.VITE_BACKEND_URI}/payment/create-order`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,9 +53,8 @@ const Payment = () => {
         toast(`Signature: ${response.razorpay_signature}`);
       },
       prefill: {
-        name: 'Gaurav Kumar',
-        email: 'gaurav.kumar@example.com',
-        contact: '9000090000',
+        name: user.name,
+        contact: '6484645456',
       },
       notes: {
         address: 'Razorpay Corporate Office',
