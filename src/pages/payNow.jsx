@@ -15,7 +15,7 @@ const Payment = () => {
       document.body.appendChild(script);
     });
   };
-
+  
   const handlePayment = async () => {
     const res = await loadRazorpayScript();
     if (!res) {
