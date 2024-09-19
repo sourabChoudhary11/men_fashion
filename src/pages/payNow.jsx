@@ -23,7 +23,7 @@ const Payment = () => {
       return;
     }
 
-    const result = await fetch.post(`${import.meta.env.VITE_BACKEND_URI}/payment/create-order`, {
+    const result = await fetch.(`${import.meta.env.VITE_BACKEND_URI}/payment/create-order`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
