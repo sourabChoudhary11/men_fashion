@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {toast} from "react-hot-toast";
-import {UserContext} form "../index.jsx";
+import {UserContext} from "../index.jsx";
 
 const Payment = () => {
 
