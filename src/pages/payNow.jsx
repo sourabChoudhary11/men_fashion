@@ -1,166 +1,85 @@
-import React, { useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import React, {useContext} from 'react';
+import {toast} from "react-hot-toast";
+import {UserContext} form "../index.jsx";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const Payment = () => {
 
-const CheckoutForm = () => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  // State variables for form fields
-  const [customerName, setCustomerName] = useState('');
-  const [customerAddress, setCustomerAddress] = useState('');
-  const [customerCity, setCustomerCity] = useState('');
-  const [customerState, setCustomerState] = useState('');
-  const [customerCountry, setCustomerCountry] = useState('');
-  const [customerPostalCode, setCustomerPostalCode] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const cardElement = elements.getElement(CardElement);
-
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URI}/pay-now`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        amount: 50000,
-        customerName,
-        customerAddress,
-        customerCity,
-        customerState,
-        customerCountry,
-        customerPostalCode,
-      }),
+  const {cart} = useContext(UserContext);
+  
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
     });
+  };
 
-    const { clientSecret } = await response.json();
-
-    const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: cardElement,
-      },
-    });
-
-    if (error) {
-      setError(error.message);
-    } else if (paymentIntent.status === 'succeeded') {
-      setSuccess('Payment successful!');
+  const handlePayment = async () => {
+    const res = await loadRazorpayScript();
+    if (!res) {
+      alert('Razorpay SDK failed to load. Are you online?');
+      return;
     }
 
-    setLoading(false);
+    const result = await fetch.post(`${import.meta.env.VITE_BACKEND_URI}/payment/create-order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      }
+      body: JSON.stringify({ amount: cart.totalAmount }),
+    }
+      );
+
+    if (!result) {
+      toast('Server error. Are you online?');
+      return;
+    }
+
+    const { amount, id: order_id, currency } = result.data.order;
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: amount.toString(),
+      currency: currency,
+      name: 'Acme Corp',
+      description: 'Test Transaction',
+      image: 'https://example.com/your_logo',
+      order_id: order_id,
+      handler: function (response) {
+        alert(`Payment ID: ${response.razorpay_payment_id}`);
+        alert(`Order ID: ${response.razorpay_order_id}`);
+        alert(`Signature: ${response.razorpay_signature}`);
+      },
+      prefill: {
+        name: 'Gaurav Kumar',
+        email: 'gaurav.kumar@example.com',
+        contact: '9000090000',
+      },
+      notes: {
+        address: 'Razorpay Corporate Office',
+      },
+      theme: {
+        color: '#3399cc',
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.on('payment.failed', function (response) {
+      toast(`Failed: ${response.error.code}`);
+    });
+
+    paymentObject.open();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 max-w-md mx-auto bg-white rounded-lg shadow-md">
-      <div>
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerName">
-          Name
-        </label>
-        <input
-          id="customerName"
-          type="text"
-          value={customerName}
-          onChange={(e) => setCustomerName(e.target.value)}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
-        />
-      </div>
-      <div>
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerAddress">
-          Address
-        </label>
-        <input
-          id="customerAddress"
-          type="text"
-          value={customerAddress}
-          onChange={(e) => setCustomerAddress(e.target.value)}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
-        />
-      </div>
-      <div>
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerCity">
-          City
-        </label>
-        <input
-          id="customerCity"
-          type="text"
-          value={customerCity}
-          onChange={(e) => setCustomerCity(e.target.value)}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
-        />
-      </div>
-      <div>
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerState">
-          State
-        </label>
-        <input
-          id="customerState"
-          type="text"
-          value={customerState}
-          onChange={(e) => setCustomerState(e.target.value)}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
-        />
-      </div>
-      <div>
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerCountry">
-          Country
-        </label>
-        <input
-          id="customerCountry"
-          type="text"
-          value={customerCountry}
-          onChange={(e) => setCustomerCountry(e.target.value)}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
-        />
-      </div>
-      <div>
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="customerPostalCode">
-          Postal Code
-        </label>
-        <input
-          id="customerPostalCode"
-          type="text"
-          value={customerPostalCode}
-          onChange={(e) => setCustomerPostalCode(e.target.value)}
-          required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 focus:border-indigo-500"
-        />
-      </div>
-      <div>
-        <label className="block text-gray-700 text-sm font-bold mb-2">
-          Card Details
-        </label>
-        <CardElement className="p-2 border border-gray-300 rounded-md shadow-sm" />
-      </div>
-      {error && <div className="text-red-500 text-sm">{error}</div>}
-      {success && <div className="text-green-500 text-sm">{success}</div>}
-      <button
-        type="submit"
-        disabled={!stripe || loading}
-        className={`w-full py-2 px-4 text-white font-bold rounded-md ${loading ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'} focus:outline-none`}
-      >
-        {loading ? 'Processing...' : 'Pay'}
-      </button>
-    </form>
+    <div>
+      {
+        handlePayment()
+      }
+    </div>
   );
 };
 
-const PayNow = () => (
-  <Elements stripe={stripePromise}>
-    <CheckoutForm />
-  </Elements>
-);
-
-export default PayNow;
+export default Payment;
